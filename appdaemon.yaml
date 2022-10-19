@@ -1,0 +1,31 @@
+appdaemon:
+  accessfile: /mnt/appdaemon_access.log
+  errorfile: /mnt/appdaemon_error.log
+  logfile: /mnt/appdaemon.log
+  log_generations: 3
+  log_size: 1000000
+  time_zone: Europe/Paris
+  latitude: 49.19927143
+  longitude: 2.2717157
+  elevation: 96 
+  api_key : herdid
+  api_ssl_certificate: /usr/local/etc/letsencrypt/live/soros.duckdns.org/fullchain.pem
+  api_ssl_key: /usr/local/etc/letsencrypt/live/soros.duckdns.org/privkey.pem
+  plugins:
+    HASS:
+      type: hass
+      ha_url: http://192.168.1.23:8123
+      #ha_url: https://soros.duckdns.org/
+      token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmODg4NTAyMGY2Yzg0YTA1YjU2NzBiMDUxODlkYmExNCIsImlhdCI6MTU4MDEwODUwOCwiZXhwIjoxODk1NDY4NTA4fQ.siTd4hq3JKcX49dSR3FJPOznTlW57KaZ0RoOs9ZitKE
+      #cert_path: /mnt/
+      cert_verify: False
+    MQTT:
+      type: mqtt
+      namespace: mqtt
+      verbose: True
+      client_host: 192.168.1.38
+      client_port: 1883
+      client_id: pierre
+      client_user: pierre
+      client_password: herdid
+      event_name: MQTT_EVENT
