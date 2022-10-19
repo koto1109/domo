@@ -1,0 +1,477 @@
+#WARNING sur le nas sont seulement dispo le configuration.yaml
+#car il y a un sym link qui renvoi ce fichier.
+#mais le vrai dossier de travail de hass est le suivant:
+#jail hass/root/.homeassistant
+#il faut aller la bas pour les log
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 49.199341
+  longitude: 2.271551
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 0
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Paris
+  # Customization file
+  #customize: !include customize.yaml
+  customize:
+    cover.realsalon_porte_fenetre_gauche_volet_gauche:
+      hidden: true
+    cover.realsalon_porte_fenetre_droite_volet_droit:
+      hidden: true
+    cover.realcuisine_fenetre_gauche_volet_droit:
+      hidden: true
+    cover.realcuisine_fenetre_gauche_volet_gauche:
+      hidden: true
+    cover.realsalle_a_manger_porte_fenetre_gauche:
+      hidden: true
+    cover.realsalle_a_manger_porte_fenetre_droite:
+      hidden: true
+    cover.realcuisine_fenetre_droite_volet_droit:
+      hidden: true
+    cover.realcuisine_fenetre_droite_volet_gauche:
+      hidden: true
+    cover.real_rdc_dressing_fenetre_gauche:
+      hidden: true
+    cover.real_rdc_dressing_fenetre_droite:
+      hidden: true
+    cover.real_rdc_chambre_fenetre_gauche:
+      hidden: true
+    cover.real_rdc_chambre_fenetre_droite:
+      hidden: true
+
+# Show links to resources in log and frontend
+introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+logger:
+  default: info
+
+
+http:
+  # Secrets are defined in the file secrets.yaml
+  #api_password: herdid
+  #ssl_certificate: /usr/local/etc/letsencrypt/live/soros.duckdns.org/fullchain.pem
+  #ssl_key: /usr/local/etc/letsencrypt/live/soros.duckdns.org/privkey.pem  
+  # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+  #base_url: https://soros.duckdns.org:8123
+  base_url: 192.168.1.62:8123
+  #use_x_forwarded_for: true
+  #trusted_proxies: 
+  #  - 127.0.0.1
+  #  - 192.168.1.64
+  #  - 192.168.1.36
+  #  - 192.168.1.50
+  #  - 192.168.1.62
+  #trusted_networks: 192.168.1.36
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# Discover some devices automatically
+#discovery:
+# ignore:
+#    - plex_mediaserver
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+map:
+
+# Track the sun
+sun:
+
+# Weather prediction
+sensor:    
+
+
+# Text to speech
+tts:
+  - platform: google_translate
+    service_name: google_say
+
+# Cloud
+cloud:
+
+#MQTT https://www.home-assistant.io/docs/mqtt/broker#run-your-own
+mqtt:
+  broker: 192.168.1.75
+  port: 1883
+  client_id: home_assistant_1
+  keepalive: 60
+  username: home_assistant_1
+  password: herdid
+
+device_tracker:
+  - platform: owntracks
+    max_gps_accuracy: 900
+    waypoints: true
+    mqtt_topic: "owntracks/#"
+
+zone:
+  - name: Pierre_work
+    latitude: 48.790116
+    longitude: 2.045520
+    radius: 100
+    icon: mdi:worker
+  - name: Fanny_work
+    latitude: 49.322154
+    longitude: 2.690790
+    radius: 400
+    icon: mdi:worker
+
+knx:
+  tunneling:
+    host: '192.168.1.50'
+    port: 3671
+    local_ip: '192.168.1.62'
+  fire_event: True
+  fire_event_filter: ["3/*/*","0/*/*", "15/*/*", "2/*/*"]
+  state_updater: False
+#!!! ATTENTION LES ADDRESSE SCRIPT PYTHON DOIVENT ABSOLUMENT ETRE VIDE DANS ETS !!! 
+cover:
+  - platform: knx
+    name: 'Cuisine fenetre droite'#SCRIPT python
+    move_long_address: '15/0/1'#OPEN/CLOSE
+    move_short_address: '15/0/2'#STOP
+    position_address: '15/0/4'#COMMANDE en deplacement NOT USED
+    position_state_address: '15/0/3'#position status
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : '15'#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : '15'#Sinon cette saloperie envoi une commande par position intermediaire
+  - platform: knx
+    name: "RealCuisine : Fenetre droite, volet gauche"#a ouvrir en deuxieme // A fermer en premier
+    move_long_address: '0/3/9'#KNX group address for moving the cover full up or down.
+    move_short_address: '0/3/10'#KNX group address for moving the cover short time up or down.
+    position_address: '0/3/12'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '0/3/11'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: "RealCuisine : Fenetre droite, volet droit"
+    move_long_address: '0/3/13'
+    move_short_address: '0/3/14'
+    position_address: '0/3/16'
+    position_state_address: '0/3/15'
+    invert_position: 'false'
+  - platform: knx
+    name: 'Salon porte fenetre'#SCRIPT python
+    move_long_address: '15/0/9'#NOT USED
+    move_short_address: '15/0/10'#NOT USED
+    position_address: '15/0/12'#NOT USED
+    position_state_address: '15/0/11'#ALWAYS REAL RIGHT BLIND
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+  - platform: knx
+    name: "RealSalon : Porte fenetre gauche, volet gauche"#a ouvrir en deuxieme // A fermer en premier
+    move_long_address: '3/3/1'#KNX group address for moving the cover full up or down.
+    move_short_address: '3/3/2'#KNX group address for moving the cover short time up or down.
+    position_address: '3/3/4'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '3/3/3'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: "RealSalon : Porte fenetre droite, volet droit"#a ouvrir en premier //
+    move_long_address: '3/3/5'#KNX group address for moving the cover full up or down.
+    move_short_address: '3/3/6'#KNX group address for moving the cover short time up or down.
+    position_address: '3/3/8'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '3/3/7'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: 'Cuisine gauche'#SCRIPT python
+    move_long_address: '15/0/5'#NOT USED
+    move_short_address: '15/0/6'#NOT USED
+    position_address: '15/0/8'#NOT USED
+    position_state_address: '15/0/7'#ALWAYS REAL RIGHT BLIND
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+  - platform: knx
+    name: "RealCuisine : Fenetre gauche, volet gauche"#a ouvrir en deuxieme // A fermer en premier WARNING CHANGEMENT DS LES GROUPS 9/4/4 et 9/4/5
+    move_long_address: '0/3/1'#KNX group address for moving the cover full up or down.
+    move_short_address: '0/3/2'#KNX group address for moving the cover short time up or down.
+    position_address: '0/3/4'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '0/3/3'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: "RealCuisine : Fenetre gauche, volet droit"#a ouvrir en premier // WARNING CHANGEMENT DS LES GROUPS 9/5/4 et 9/5/5
+    move_long_address: '0/3/5'#KNX group address for moving the cover full up or down.
+    move_short_address: '0/3/6'#KNX group address for moving the cover short time up or down.
+    position_address: '0/3/8'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '0/3/7'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: 'Salle a manger'#SCRIPT python
+    move_long_address: '15/0/13'#NOT USED
+    move_short_address: '15/0/14'#NOT USED
+    position_address: '15/0/16'#NOT USED
+    position_state_address: '15/0/15'#ALWAYS REAL RIGHT BLIND
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+  - platform: knx
+    name: "RealSalle à manger : Porte fenetre gauche"#a ouvrir en premier //
+    move_long_address: '2/3/1'#KNX group address for moving the cover full up or down.
+    move_short_address: '2/3/2'#KNX group address for moving the cover short time up or down.
+    position_address: '2/3/4'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '2/3/3'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: "RealSalle à manger : Porte fenetre droite"#a ouvrir en deuxieme // A fermer en premier
+    move_long_address: '2/3/5'#KNX group address for moving the cover full up or down.
+    move_short_address: '2/3/6'#KNX group address for moving the cover short time up or down.
+    position_address: '2/3/8'#KNX group address for moving the cover to the dedicated position.
+    position_state_address: '2/3/7'#position_state_address (Optional): Separate KNX group address for requesting the current position of the cover.
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+#RDC SDB
+  - platform: knx
+    name: "Salle de bain RDC"
+    move_long_address: '4/3/17'#KNX Move up or down
+    move_short_address: '4/3/18'#KNX stop
+    position_address: '4/3/20'#KNX move to position
+    position_state_address: '4/3/19'#KNX status height
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+#RDC FACE Escalier 
+  - platform: knx
+    name: "Entrée"
+    move_long_address: '1/3/1'#KNX Move up or down
+    move_short_address: '1/3/2'#KNX stop
+    position_address: '1/3/4'#KNX move to position
+    position_state_address: '1/3/3'#KNX status height
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+#RDC CHAMBRE
+  - platform: knx
+    name: "Real_RDC_Chambre : Fenetre gauche"#a ouvrir en premier //
+    move_long_address: '4/3/1'#KNX Move up or down
+    move_short_address: '4/3/2'#KNX stop
+    position_address: '4/3/4'#KNX move to position
+    position_state_address: '4/3/3'#KNX status height
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: "Real_RDC_Chambre : Fenetre droite"#a ouvrir en deuxieme // A fermer en premier
+    move_long_address: '4/3/5'#KNX Move up or down
+    move_short_address: '4/3/6'#KNX stop
+    position_address: '4/3/8'#KNX move to position
+    position_state_address: '4/3/7'#KNX status height
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: 'Chambre RDC'#SCRIPT python
+    move_long_address: '15/0/22'#NOT USED
+    move_short_address: '15/0/23'#NOT USED
+    position_address: '15/0/25'#NOT USED
+    position_state_address: '15/0/24'#ALWAYS REAL RIGHT BLIND
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+#RDC Dressing
+  - platform: knx
+    name: "Real_RDC_Dressing : Fenetre gauche"#a ouvrir en premier //
+    move_long_address: '4/3/9'#KNX Move up or down
+    move_short_address: '4/3/10'#KNX stop
+    position_address: '4/3/12'#KNX move to position
+    position_state_address: '4/3/11'#KNX status height
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: "Real_RDC_Dressing : Fenetre droite"#a ouvrir en deuxieme // A fermer en premier
+    move_long_address: '4/3/13'#KNX Move up or down
+    move_short_address: '4/3/14'#KNX stop
+    position_address: '4/3/16'#KNX move to position
+    position_state_address: '4/3/15'#KNX status height
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+  - platform: knx
+    name: 'Dressing RDC'#SCRIPT python
+    move_long_address: '15/0/26'#NOT USED
+    move_short_address: '15/0/27'#NOT USED
+    position_address: '15/0/29'#NOT USED
+    position_state_address: '15/0/28'#ALWAYS REAL RIGHT BLIND
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+  - platform: knx
+    name: 'Tous les volets'#SCRIPT python
+    move_long_address: '15/0/17'#Used between hass and comforttouch Open/close
+    move_short_address: '15/0/18'#Used between hass and comforttouch Stop
+    position_address: '15/0/20'#NOT USED
+    position_state_address: '15/0/19'#ALWAYS REAL RIGHT BLIND
+    invert_position: 'false'# Set this to true if your actuator report fully closed as 100%.
+    travelling_time_down : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+    travelling_time_up : "15"#Sinon cette saloperie envoi une commande par position intermediaire
+
+#https://www.home-assistant.io/components/light.mqtt/
+#state_topic: "cheminee/light/ruban/light/switch_status"#on switch
+#brightness_state_topic: "cheminee/light/ruban/light/brightness_status" 
+#white_value_state_topic: "cheminee/light/ruban/ww/status"#receive status
+#brightness_value_template:"{{value}}"
+#rgb_state_topic: "cheminee/light/ruban/rgb/status"#receive status
+light:
+#ruban
+  - platform: mqtt
+    name: "Ruban cheminee"
+    command_topic: "cheminee/light/ruban/light/switch_command"#on switch
+    state_topic:  "cheminee/light/ruban/light/switch_state"
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cheminee/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    brightness_scale: 255
+    brightness_command_topic: "cheminee/light/ruban/light/brightness_command"
+    brightness_state_topic: "cheminee/light/ruban/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    rgb_command_topic: "cheminee/light/ruban/rgb/rgb_command"#active wheel-send value
+    rgb_state_topic: "cheminee/light/ruban/rgb/rgb_state"
+    rgb_value_template: "{{value}}"
+    white_value_scale: 255
+    white_value_command_topic: "cheminee/light/ruban/ww/ww_command"#active le cannal-commande la couleur blanche
+    white_value_state_topic: "cheminee/light/ruban/ww/ww_state"
+    white_value_template: "{{value}}"
+    optimistic: false
+    on_command_type: 'last'
+  - platform: mqtt
+    name: "Ruban cuisine"
+    command_topic: "cuisine/light/ruban/light/switch_command"#on switch
+    state_topic:  "cuisine/light/ruban/light/switch_state"
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cuisine/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    brightness_scale: 255
+    brightness_command_topic: "cuisine/light/ruban/light/brightness_command"
+    brightness_state_topic: "cuisine/light/ruban/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    rgb_command_topic: "cuisine/light/ruban/rgb/rgb_command"#active wheel-send value
+    rgb_state_topic: "cuisine/light/ruban/rgb/rgb_state"
+    rgb_value_template: "{{value}}"
+    white_value_scale: 255
+    white_value_command_topic: "cuisine/light/ruban/ww/ww_command"#active le cannal-commande la couleur blanche
+    white_value_state_topic: "cuisine/light/ruban/ww/ww_state"
+    white_value_template: "{{value}}"
+    optimistic: false
+    on_command_type: 'last'
+  - platform: mqtt
+    name: "Cuisine spot caisson"
+    command_topic: "cuisine/light/spot_caisson/light/switch_command"#on switch
+    state_topic:  "cuisine/light/spot_caisson/light/switch_state"
+    brightness_scale: 255
+    brightness_command_topic: "cuisine/light/spot_caisson/light/brightness_command"
+    brightness_state_topic: "cuisine/light/spot_caisson/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    color_temp_command_topic: "cuisine/light/spot_caisson/light/color_temp_command"
+    color_temp_state_topic: "cuisine/light/spot_caisson/light/color_temp_state"
+    color_temp_value_template: "{{value}}" 
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cheminee/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    optimistic: false
+    on_command_type: 'last'
+  - platform: mqtt
+    name: "Cheminee spot caisson"
+    command_topic: "cheminee/light/spot_caisson/light/switch_command"#on switch
+    state_topic:  "cheminee/light/spot_caisson/light/switch_state"
+    brightness_scale: 255
+    brightness_command_topic: "cheminee/light/spot_caisson/light/brightness_command"
+    brightness_state_topic: "cheminee/light/spot_caisson/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    color_temp_command_topic: "cheminee/light/spot_caisson/light/color_temp_command"
+    color_temp_state_topic: "cheminee/light/spot_caisson/light/color_temp_state"
+    color_temp_value_template: "{{value}}" 
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cheminee/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    optimistic: false
+    on_command_type: 'last'
+  - platform: mqtt
+    name: "Cuisine spot evier"
+    command_topic: "cuisine/light/spot_evier/light/switch_command"#on switch
+    state_topic:  "cuisine/light/spot_evier/light/switch_state"
+    brightness_scale: 255
+    brightness_command_topic: "cuisine/light/spot_evier/light/brightness_command"
+    brightness_state_topic: "cuisine/light/spot_evier/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    color_temp_command_topic: "cuisine/light/spot_evier/light/color_temp_command"
+    color_temp_state_topic: "cuisine/light/spot_evier/light/color_temp_state"
+    color_temp_value_template: "{{value}}" 
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cheminee/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    optimistic: false
+    on_command_type: 'last'
+  - platform: mqtt
+    name: "Entree spot cave"
+    command_topic: "entree/light/spot_cave/light/switch_command"#on switch
+    state_topic:  "entree/light/spot_cave/light/switch_state"
+    brightness_scale: 255
+    brightness_command_topic: "entree/light/spot_cave/light/brightness_command"
+    brightness_state_topic: "entree/light/spot_cave/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    color_temp_command_topic: "entree/light/spot_cave/light/color_temp_command"
+    color_temp_state_topic: "entree/light/spot_cave/light/color_temp_state"
+    color_temp_value_template: "{{value}}" 
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cheminee/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    optimistic: false
+    on_command_type: 'last'
+  - platform: mqtt
+    name: "WC RDC spot"
+    command_topic: "wc_rdc/light/spot/light/switch_command"#on switch
+    state_topic:  "wc_rdc/light/spot/light/switch_state"
+    brightness_scale: 255
+    brightness_command_topic: "wc_rdc/light/spot/light/brightness_command"
+    brightness_state_topic: "wc_rdc/light/spot/light/brightness_state"
+    brightness_value_template: "{{value}}"
+    color_temp_command_topic: "wc_rdc/light/spot/light/color_temp_command"
+    color_temp_state_topic: "wc_rdc/light/spot/light/color_temp_state"
+    color_temp_value_template: "{{value}}" 
+    state_value_template: "{{value}}"##template en jinja2 assez puissante qui permet dextraire des data a partir de structure par defaut retourne la value
+    payload_on: 1 # when ON is published on cheminee/light/ruban/light/switch_status, HA will update the switch status
+    payload_off: 0
+    optimistic: false
+    on_command_type: 'last'
+  - platform: group
+    name: Rubans SAM Cheminée
+    entities:
+      - light.ruban_cheminee
+      - light.ruban_cuisine
+
+
+media_player:
+#  - platform: samsungtv
+#    host: 192.168.1.40
+#    port: 8001
+#    name: 'TV salon'
+#  - platform: snapcast
+#    host: 192.168.1.25
+#  - platform: denonavr #Ampli
+#    host: 192.168.1.26
+#    name: 'Ampli salon'
+#    show_all_sources: True
+#    zones:
+#      - zone: Zone2 
+#        name: Zone 2
+
+#weblink:
+#  entities:
+#  - name: Multi-Room Player
+#    url: http://192.168.1.25:6680/iris/
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
